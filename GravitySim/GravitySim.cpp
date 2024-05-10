@@ -2,6 +2,8 @@
 #include <windows.h>
 #include "Screen.h"
 
+float pi = acos(-1);
+
 class Vector2 {
 public:
     float x;
@@ -150,10 +152,14 @@ public:
 
     Body& show(Screen& screen) {
         //gridInput(screen, round(pos.x), round(pos.y));
-        gridInput(screen, round(pos.x), round(pos.y) - 1);
-        gridInput(screen, round(pos.x) + 1, round(pos.y));
-        gridInput(screen, round(pos.x), round(pos.y) + 1);
-        gridInput(screen, round(pos.x) - 1, round(pos.y));
+        gridInput(screen, round(pos.x), round(pos.y) - 2);
+        gridInput(screen, round(pos.x) + 1, round(pos.y) - 1);
+        gridInput(screen, round(pos.x) + 2, round(pos.y));
+        gridInput(screen, round(pos.x) + 1, round(pos.y) + 1);
+        gridInput(screen, round(pos.x), round(pos.y) + 2);
+        gridInput(screen, round(pos.x) - 1, round(pos.y) + 1);
+        gridInput(screen, round(pos.x) - 2, round(pos.y));
+        gridInput(screen, round(pos.x) - 1, round(pos.y) - 1);
 
         return *this;
     }
@@ -167,23 +173,57 @@ public:
 public:
     Sim() {
         count = 2;
-        bodies[0] = Body(10, 50, 50);
-        bodies[0].vel.set(0, 1).setMag(0.1);
-        bodies[1] = Body(10, 100, 50);
-        bodies[1].vel.set(0, -1).setMag(0.1);
+        bodies[0] = Body(400, 200, 100);
+        //bodies[0].vel.set(1, 0).setMag(1);
+        //bodies[0].vel.setPolar(1, -pi/6);
+        bodies[1] = Body(80, 225, 100);
+        bodies[1].vel.set(0, -1).setMag(0.01);
     }
 
     Sim& update() {
-        float gConstant = 1;
-        float distance = Vector2(bodies[1].pos).sub(bodies[0].pos).getMag();
-        float gForceMag = gConstant * (bodies[1].mass * bodies[0].mass)/pow(distance, 2);
+        Vector2 AtoB = Vector2(bodies[1].pos).sub(bodies[0].pos);
+        float distance = AtoB.getMag();
         
-        Vector2 gForce;
-        gForce.setPolar(gForceMag, Vector2(bodies[1].pos).sub(bodies[0].pos).getAngle());
-        gForce.divide(2);
+        if (distance < 6) {
+            float thetaA = bodies[0].vel.getAngle() - AtoB.getAngle();
+            Vector2 collisionA;
+            collisionA.setPolar(cos(thetaA) * bodies[0].vel.getMag(), AtoB.getAngle());
+            float impactSpeedA = collisionA.getMag();
 
-        bodies[0].acc = Vector2(gForce).divide(bodies[0].mass);
-        bodies[1].acc = Vector2(gForce).multiply(-1).divide(bodies[1].mass);
+            float thetaB = bodies[1].vel.getAngle() - AtoB.getAngle()+acos(-1);
+            Vector2 collisionB;
+            collisionB.setPolar(cos(thetaB) * bodies[1].vel.getMag(), AtoB.getAngle() + pi);
+            float impactSpeedB = -collisionB.getMag();
+
+            float m1 = bodies[0].mass;
+            float v1 = impactSpeedA;
+            float m2 = bodies[1].mass;
+            float v2 = impactSpeedB;
+
+            float newSpeedA = ((m2 * ((2 * v2) - v1)) + (m1 * v1)) / (m1 + m2);
+            float newSpeedB = ((m1 * ((2 * v1) - v2)) + (m2 * v2)) / (m1 + m2);
+
+            Vector2 a; 
+            a.setPolar(newSpeedA, collisionA.getAngle());
+            Vector2 b;
+            b.setPolar(-newSpeedB, collisionB.getAngle());
+            Vector2 newVelA = Vector2(bodies[0].vel).sub(collisionA).add(a);
+            Vector2 newVelB = Vector2(bodies[1].vel).sub(collisionB).add(b);
+
+            bodies[0].vel = newVelA;
+            bodies[1].vel = newVelB;
+        }
+        else {
+            float gConstant = 0.01;
+            float gForceMag = gConstant * (bodies[1].mass * bodies[0].mass) / pow(distance, 2);
+
+            Vector2 gForce;
+            gForce.setPolar(gForceMag, AtoB.getAngle());
+            //gForce.divide(2);
+
+            bodies[0].acc = Vector2(gForce).divide(bodies[0].mass);
+            bodies[1].acc = Vector2(gForce).multiply(-1).divide(bodies[1].mass);
+        }
 
         for (int i = 0; i < count; i++) {
             bodies[i].update();
@@ -212,8 +252,8 @@ int main() {
     SetConsoleMode(hout, consoleMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
     SetConsoleMode(hin, ENABLE_EXTENDED_FLAGS | ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
 
-    SHORT width = 300;
-    SHORT height = 100;
+    SHORT width = 800;
+    SHORT height = 200;
 
     SetConsoleScreenBufferSize(hout, { width, height });
 
@@ -222,8 +262,8 @@ int main() {
 
     GetCurrentConsoleFontEx(hout, false, &cfi);
 
-    cfi.dwFontSize.Y = 10;
-    cfi.dwFontSize.X = 5;
+    cfi.dwFontSize.Y = 4;
+    cfi.dwFontSize.X = 2;
 
     SetCurrentConsoleFontEx(hout, false, &cfi);
 
@@ -286,6 +326,10 @@ int main() {
         screen.text("Mouse screen pos: x:" + std::to_string(mouseX) + ", y:" + std::to_string(mouseY), 2, 1);
         screen.text("Mouse grid pos: x:" + std::to_string(mouseX / 2) + ", y:" + std::to_string(mouseY), 2, 2);
         screen.text("Bodies: " + std::to_string(sim.count), 2, 3);
+        Vector2 collisionA;
+        //collisionA.setPolar(cos(thetaA) * bodies[0].vel.getMag(), AtoB.getAngle());
+        collisionA = sim.bodies[0].vel;
+        screen.text("angle: " + std::to_string(collisionA.getAngle()), 2, 5);
         //screen.text("Swarm target: x:" + std::to_string(swarm.target.x) + ", y:" + std::to_string(swarm.target.y), 2, 4);
         //screen.text("Drone vel mag: " + std::to_string(drone.vel.getMag()), 2, 5);
 
