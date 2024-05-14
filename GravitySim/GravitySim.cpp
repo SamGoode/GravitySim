@@ -24,16 +24,16 @@ int main() {
 
     GetCurrentConsoleFontEx(hout, false, &cfi);
 
-    cfi.dwFontSize.Y = 4;
-    cfi.dwFontSize.X = 2;
+    cfi.dwFontSize.Y = 2;
+    cfi.dwFontSize.X = 1;
 
     SetCurrentConsoleFontEx(hout, false, &cfi);
 
     SMALL_RECT dim = { 0, 0, width - 1, height - 1 };
 
     if (!SetConsoleWindowInfo(hout, true, &dim)) {
-        cfi.dwFontSize.Y = 16;
-        cfi.dwFontSize.X = 9;
+        cfi.dwFontSize.Y = 2;
+        cfi.dwFontSize.X = 1;
 
         SetCurrentConsoleFontEx(hout, false, &cfi);
 
@@ -59,7 +59,7 @@ int main() {
     Coord centrePos = { -1, -1 };
     int radius = 0;
     // resulting vector magnitude / distance in pixels
-    float velScaling = 1.0 / 10.0f;
+    float velScaling = 1.0 / 100.0f;
 
     Sim sim;
 
@@ -133,9 +133,6 @@ int main() {
             }
             break;
         }
-        
-        
-
 
         sim.update();
 
