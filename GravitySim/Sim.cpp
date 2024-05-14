@@ -4,16 +4,16 @@ float pi = (float)acos(-1);
 
 Sim::Sim() {
     // kg/m^2
-    densitySetting = 1.0 / 1.0f;
-    count = 3;
+    densitySetting = 4.0 / 1.0f;
+    count = 0;
     bodies = new Body[count];
 
-    bodies[0] = Body(400, 10, 200, 100);
+    //bodies[0] = Body(400, 10, 200, 100);
     //bodies[0].vel.set(1, 0).setMag(1);
     //bodies[0].vel.setPolar(1, -pi/6);
-    bodies[1] = Body(80, 4, 225, 100);
+    //bodies[1] = Body(80, 4, 225, 100);
     //bodies[1].vel.set(0, -1).setMag(0.2);
-    bodies[2] = Body(100, 5, 200, 120);
+    //bodies[2] = Body(100, 5, 200, 120);
 }
 
 Sim::~Sim() {
@@ -82,6 +82,21 @@ Sim& Sim::update() {
             float distance = AtoB.getMag();
 
             if (distance <= bodies[i].radius + bodies[n].radius) {
+                //bodies[i].pos.sub(Vector2(AtoB).setMag((bodies[i].radius - (distance / 2)) * (1 * bodies[i].mass) / (bodies[i].mass + bodies[n].mass)));
+                //bodies[n].pos.add(Vector2(AtoB).setMag((bodies[n].radius - (distance / 2)) * (1 * bodies[n].mass) / (bodies[i].mass + bodies[n].mass)));
+                
+                //new temp fix, I wanna incorporate the ratio of mass in distribution of distance clipped for each body, but I'll figure out the math for that later.
+                if (abs(bodies[i].mass - bodies[n].mass) < 100) {
+                    bodies[i].pos.sub(Vector2(AtoB).setMag((bodies[i].radius - (distance / 2));
+                    bodies[n].pos.add(Vector2(AtoB).setMag((bodies[n].radius - (distance / 2));
+                }
+                else if (bodies[i].mass < bodies[n].mass) {
+                    bodies[i].pos.sub(Vector2(AtoB).setMag(bodies[i].radius + bodies[n].radius - distance));
+                }
+                else {
+                    bodies[n].pos.add(Vector2(AtoB).setMag(bodies[i].radius + bodies[n].radius - distance));
+                }
+
                 float thetaA = bodies[i].vel.getAngle() - AtoB.getAngle();
                 Vector2 impactVecA;
                 impactVecA.setPolar((float)cos(thetaA) * bodies[i].vel.getMag(), AtoB.getAngle());
@@ -106,10 +121,6 @@ Sim& Sim::update() {
                 b.setPolar(-newSpeedB, impactVecB.getAngle());
                 bodies[i].vel.sub(impactVecA).add(a);
                 bodies[n].vel.sub(impactVecB).add(b);
-
-                //temp fix
-                //bodies[i].sumForce.set(0, 0);
-                //bodies[n].sumForce.set(0, 0);
             }
         }
     }
