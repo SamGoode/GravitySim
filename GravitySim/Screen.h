@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
 
+struct Coord {
+    int x;
+    int y;
+};
+
 class Screen {
     private:    
         char* screenMatrix;
@@ -25,6 +30,14 @@ class Screen {
         void rect(char text, int x, int y, int width, int height);
 
         void text(std::string text, int x, int y);
+
+        static Coord mapScreenToGrid(int x, int y);
+
+        void gridInput(int gridX, int gridY);
+
+        void line(int x1, int y1, int x2, int y2);
+
+        void circle(int x, int y, int r);
 
         void print();
 };
