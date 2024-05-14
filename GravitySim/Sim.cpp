@@ -4,12 +4,33 @@ float pi = (float)acos(-1);
 
 Sim::Sim() {
     count = 3;
+    bodies = new Body[count];
+
     bodies[0] = Body(400, 10, 200, 100);
     //bodies[0].vel.set(1, 0).setMag(1);
     //bodies[0].vel.setPolar(1, -pi/6);
     bodies[1] = Body(80, 4, 225, 100);
     //bodies[1].vel.set(0, -1).setMag(0.2);
     bodies[2] = Body(100, 5, 200, 120);
+}
+
+Sim::~Sim() {
+    delete[] bodies;
+}
+
+Sim& Sim::addBody(float mass, int radius, float x, float y) {
+    Body* oldPtr = bodies;
+
+    count++;
+    bodies = new Body[count];
+    for (int i = 0; i < count - 1; i++) {
+        bodies[i] = Body(oldPtr[i]);
+    }
+    bodies[count - 1] = Body(mass, radius, x, y);
+    
+    delete[] oldPtr;
+
+    return *this;
 }
 
 Sim& Sim::update() {

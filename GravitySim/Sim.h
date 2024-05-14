@@ -5,10 +5,14 @@
 class Sim {
 public:
     int count;
-    Body bodies[3];
+    Body* bodies;
 
 public:
     Sim();
+
+    ~Sim();
+
+    Sim& addBody(float mass, int radius, float x, float y);
 
     Sim& update();
 

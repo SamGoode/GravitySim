@@ -50,7 +50,11 @@ int main() {
 
     int mouseX = 0;
     int mouseY = 0;
+    bool mouseClicked = false;
     bool mousePressed = false;
+    bool mouseReleased = false;
+    Coord clickedPos = { -1, -1 };
+    Coord draggedPos = { -1, -1 };
 
     Sim sim;
 
@@ -65,19 +69,47 @@ int main() {
                 mouseY = inputRecord.Event.MouseEvent.dwMousePosition.Y;
 
                 if (inputRecord.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
+                    if (!mousePressed) {
+                        mouseClicked = true;
+                    }
+                    else {
+                        mouseClicked = false;
+                    }
+                    
                     mousePressed = true;
+                    mouseReleased = false;
+                }
+                else if(mousePressed && !mouseReleased) {
+                    mouseClicked = false;
+                    mousePressed = false;
+                    mouseReleased = true;
                 }
                 else {
+                    mouseClicked = false;
                     mousePressed = false;
+                    mouseReleased = false;
                 }
                 break;
             }
         }
 
         screen.reset();
-
-        //if (mousePressed) {
-        //}
+        
+        if (mouseClicked) {
+            clickedPos = { mouseX / 2, mouseY };
+        }
+        else if (mousePressed) {
+            draggedPos = { mouseX / 2, mouseY };
+            
+            //screen.gridInput(clickedPos.x, clickedPos.y);
+            screen.line(clickedPos.x, clickedPos.y, draggedPos.x, draggedPos.y);
+            screen.circle(clickedPos.x, clickedPos.y, (int)round(sqrt(pow(draggedPos.x - clickedPos.x, 2) + pow(draggedPos.y - clickedPos.y, 2))));
+        }
+        else if (mouseReleased) {
+            sim.addBody(50, (int)round(sqrt(pow(draggedPos.x - clickedPos.x, 2) + pow(draggedPos.y - clickedPos.y, 2))), clickedPos.x, clickedPos.y);
+            clickedPos = { -1, -1 };
+            draggedPos = { -1, -1 };
+        }
 
         sim.update();
 
