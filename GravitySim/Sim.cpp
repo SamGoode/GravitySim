@@ -87,8 +87,8 @@ Sim& Sim::update() {
                 
                 //new temp fix, I wanna incorporate the ratio of mass in distribution of distance clipped for each body, but I'll figure out the math for that later.
                 if (abs(bodies[i].mass - bodies[n].mass) < 100) {
-                    bodies[i].pos.sub(Vector2(AtoB).setMag((bodies[i].radius - (distance / 2));
-                    bodies[n].pos.add(Vector2(AtoB).setMag((bodies[n].radius - (distance / 2));
+                    bodies[i].pos.sub(Vector2(AtoB).setMag(bodies[i].radius - (distance / 2)));
+                    bodies[n].pos.add(Vector2(AtoB).setMag(bodies[n].radius - (distance / 2)));
                 }
                 else if (bodies[i].mass < bodies[n].mass) {
                     bodies[i].pos.sub(Vector2(AtoB).setMag(bodies[i].radius + bodies[n].radius - distance));
