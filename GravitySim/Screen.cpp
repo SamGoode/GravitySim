@@ -161,6 +161,7 @@ void Screen::line(int x1, int y1, int x2, int y2) {
     }
 }
 
+//can't be bothered optimising by removing overlaps right now
 void Screen::circle(int x, int y, int r) {
     // x^2 + y^2 = r^2
     // y = sqrt(r^2 - x^2)
