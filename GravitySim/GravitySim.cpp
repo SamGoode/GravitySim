@@ -24,8 +24,8 @@ int main() {
 
     GetCurrentConsoleFontEx(hout, false, &cfi);
 
-    cfi.dwFontSize.Y = 2;
-    cfi.dwFontSize.X = 1;
+    cfi.dwFontSize.Y = 4;
+    cfi.dwFontSize.X = 2;
 
     SetCurrentConsoleFontEx(hout, false, &cfi);
 
