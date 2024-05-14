@@ -98,7 +98,8 @@ int main() {
         if (mouseClicked) {
             clickedPos = { mouseX / 2, mouseY };
         }
-        else if (mousePressed) {
+
+        if (mousePressed) {
             draggedPos = { mouseX / 2, mouseY };
             
             //screen.gridInput(clickedPos.x, clickedPos.y);
@@ -106,7 +107,7 @@ int main() {
             screen.circle(clickedPos.x, clickedPos.y, (int)round(sqrt(pow(draggedPos.x - clickedPos.x, 2) + pow(draggedPos.y - clickedPos.y, 2))));
         }
         else if (mouseReleased) {
-            sim.addBody(50, (int)round(sqrt(pow(draggedPos.x - clickedPos.x, 2) + pow(draggedPos.y - clickedPos.y, 2))), clickedPos.x, clickedPos.y);
+            sim.addBody((int)round(sqrt(pow(draggedPos.x - clickedPos.x, 2) + pow(draggedPos.y - clickedPos.y, 2))), clickedPos.x, clickedPos.y);
             clickedPos = { -1, -1 };
             draggedPos = { -1, -1 };
         }

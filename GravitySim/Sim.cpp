@@ -3,6 +3,8 @@
 float pi = (float)acos(-1);
 
 Sim::Sim() {
+    // kg/m^2
+    densitySetting = 1.0 / 1.0f;
     count = 3;
     bodies = new Body[count];
 
@@ -16,6 +18,21 @@ Sim::Sim() {
 
 Sim::~Sim() {
     delete[] bodies;
+}
+
+Sim& Sim::addBody(int radius, float x, float y) {
+    Body* oldPtr = bodies;
+
+    count++;
+    bodies = new Body[count];
+    for (int i = 0; i < count - 1; i++) {
+        bodies[i] = Body(oldPtr[i]);
+    }
+    bodies[count - 1] = Body(densitySetting*(pi*pow(radius, 2)), radius, x, y);
+
+    delete[] oldPtr;
+
+    return *this;
 }
 
 Sim& Sim::addBody(float mass, int radius, float x, float y) {
@@ -91,8 +108,8 @@ Sim& Sim::update() {
                 bodies[n].vel.sub(impactVecB).add(b);
 
                 //temp fix
-                bodies[i].sumForce.set(0, 0);
-                bodies[n].sumForce.set(0, 0);
+                //bodies[i].sumForce.set(0, 0);
+                //bodies[n].sumForce.set(0, 0);
             }
         }
     }
