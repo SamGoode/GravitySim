@@ -53,8 +53,13 @@ int main() {
     bool mouseClicked = false;
     bool mousePressed = false;
     bool mouseReleased = false;
-    Coord clickedPos = { -1, -1 };
-    Coord draggedPos = { -1, -1 };
+
+    // 0:standby, 1:creation, 2:addingVelocity
+    int editorState = 0;
+    Coord centrePos = { -1, -1 };
+    int radius = 0;
+    // resulting vector magnitude / distance in pixels
+    float velScaling = 1.0 / 10.0f;
 
     Sim sim;
 
@@ -95,22 +100,42 @@ int main() {
 
         screen.reset();
         
-        if (mouseClicked) {
-            clickedPos = { mouseX / 2, mouseY };
-        }
+        //editor logic
+        switch (editorState) {
+        case 0:
+            if (mouseClicked) {
+                centrePos = { mouseX / 2, mouseY };
+                editorState = 1;
+            }
+            break;
+        case 1:
+            radius = (int)round(sqrt(pow((mouseX / 2) - centrePos.x, 2) + pow(mouseY - centrePos.y, 2)));
+            screen.circle(centrePos.x, centrePos.y, radius);
+            screen.line(centrePos.x, centrePos.y, (mouseX / 2), mouseY);
 
-        if (mousePressed) {
-            draggedPos = { mouseX / 2, mouseY };
-            
-            //screen.gridInput(clickedPos.x, clickedPos.y);
-            screen.line(clickedPos.x, clickedPos.y, draggedPos.x, draggedPos.y);
-            screen.circle(clickedPos.x, clickedPos.y, (int)round(sqrt(pow(draggedPos.x - clickedPos.x, 2) + pow(draggedPos.y - clickedPos.y, 2))));
+            if (mouseReleased) {
+                editorState = 2;
+            }
+            break;
+        case 2:
+            screen.circle(centrePos.x, centrePos.y, radius);
+            screen.line(centrePos.x, centrePos.y, (mouseX / 2), mouseY);
+
+            if (mouseReleased) {
+                Vector2 vel = Vector2((mouseX / 2) - centrePos.x, mouseY - centrePos.y);
+                vel.multiply(velScaling);
+
+                sim.addBody(centrePos.x, centrePos.y, radius, vel);
+                radius = 0;
+                centrePos = { -1, -1 };
+
+                editorState = 0;
+            }
+            break;
         }
-        else if (mouseReleased) {
-            sim.addBody((int)round(sqrt(pow(draggedPos.x - clickedPos.x, 2) + pow(draggedPos.y - clickedPos.y, 2))), clickedPos.x, clickedPos.y);
-            clickedPos = { -1, -1 };
-            draggedPos = { -1, -1 };
-        }
+        
+        
+
 
         sim.update();
 

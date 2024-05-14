@@ -13,9 +13,9 @@ public:
 
     ~Sim();
 
-    Sim& addBody(int radius, float x, float y);
+    Sim& addBody(float x, float y, int radius, Vector2 vel);
 
-    Sim& addBody(float mass, int radius, float x, float y);
+    Sim& addBody(float x, float y, int radius, float mass, Vector2 vel);
 
     Sim& update();
 

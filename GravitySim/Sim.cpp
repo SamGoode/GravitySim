@@ -9,18 +9,19 @@ Sim::Sim() {
     bodies = new Body[count];
 
     //bodies[0] = Body(400, 10, 200, 100);
+    //bodies[1] = Body(80, 4, 225, 100);
+    //bodies[2] = Body(100, 5, 200, 120);
+    
     //bodies[0].vel.set(1, 0).setMag(1);
     //bodies[0].vel.setPolar(1, -pi/6);
-    //bodies[1] = Body(80, 4, 225, 100);
     //bodies[1].vel.set(0, -1).setMag(0.2);
-    //bodies[2] = Body(100, 5, 200, 120);
 }
 
 Sim::~Sim() {
     delete[] bodies;
 }
 
-Sim& Sim::addBody(int radius, float x, float y) {
+Sim& Sim::addBody(float x, float y, int radius, Vector2 vel) {
     Body* oldPtr = bodies;
 
     count++;
@@ -28,14 +29,15 @@ Sim& Sim::addBody(int radius, float x, float y) {
     for (int i = 0; i < count - 1; i++) {
         bodies[i] = Body(oldPtr[i]);
     }
-    bodies[count - 1] = Body(densitySetting*(pi*pow(radius, 2)), radius, x, y);
-
     delete[] oldPtr;
+    
+    bodies[count - 1] = Body(densitySetting*(pi*pow(radius, 2)), radius, x, y);
+    bodies[count - 1].vel = vel;
 
     return *this;
 }
 
-Sim& Sim::addBody(float mass, int radius, float x, float y) {
+Sim& Sim::addBody(float x, float y, int radius, float mass, Vector2 vel) {
     Body* oldPtr = bodies;
 
     count++;
@@ -43,9 +45,10 @@ Sim& Sim::addBody(float mass, int radius, float x, float y) {
     for (int i = 0; i < count - 1; i++) {
         bodies[i] = Body(oldPtr[i]);
     }
-    bodies[count - 1] = Body(mass, radius, x, y);
-    
     delete[] oldPtr;
+
+    bodies[count - 1] = Body(mass, radius, x, y);
+    bodies[count - 1].vel = vel;
 
     return *this;
 }
